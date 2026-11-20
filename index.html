@@ -1,0 +1,2654 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>BirdStacker - 野鳥観察フィールドノート</title>
+  <style>
+    :root {
+      --forest-950: #13251e;
+      --forest-900: #1b342a;
+      --forest-800: #244538;
+      --forest-700: #2e5948;
+      --forest-600: #3b715b;
+      --forest-100: #e3efe9;
+      --forest-50: #f2f8f5;
+      --bg-paper: #f3f2ed;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-sub: #475569;
+      --text-muted: #94a3b8;
+      --border-light: #e2e8f0;
+      --border-forest: #a7c9b8;
+      --amber-500: #f59e0b;
+      --amber-400: #fbbf24;
+      --rose-600: #e11d48;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+      background-color: #e7e5df;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .app-shell {
+      max-width: 680px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background-color: var(--bg-paper);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Header */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: var(--forest-900);
+      color: #fff;
+      padding: 12px 16px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: var(--forest-700);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: var(--forest-700);
+      color: #a7f3d0;
+    }
+
+    .brand-sub {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: #cbd5e1;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--forest-800);
+      color: #fff;
+      border: 1px solid var(--forest-600);
+      border-radius: 10px;
+      padding: 8px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      position: relative;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.96);
+    }
+
+    .filter-dot {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--amber-400);
+    }
+
+    /* Search & Filter Panel */
+    .filter-panel {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-ym-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .filter-select, .filter-input {
+      width: 100%;
+      background: var(--forest-950);
+      color: #fff;
+      border: 1px solid var(--forest-600);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .filter-select.active-select {
+      background: #10b981;
+      color: #06281e;
+      border-color: #6ee7b7;
+    }
+
+    .filter-input::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .chip-btn {
+      background: var(--forest-800);
+      color: #e2e8f0;
+      border: 1px solid var(--forest-600);
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .chip-btn.active {
+      background: var(--amber-400);
+      color: #1e293b;
+      border-color: var(--amber-500);
+    }
+
+    .chip-reset {
+      margin-left: auto;
+      background: rgba(251, 191, 36, 0.2);
+      color: #fde68a;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .filter-summary {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a7f3d0;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    /* Main Content */
+    .main-feed {
+      flex: 1;
+      padding: 16px 14px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .main-feed.has-active-dock {
+      padding-bottom: 48vh;
+    }
+
+    /* Start Banner */
+    .start-card {
+      background: #fff;
+      border: 2px dashed var(--border-forest);
+      border-radius: 18px;
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    .start-card h2 {
+      margin: 8px 0 4px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .start-card p {
+      margin: 0 0 14px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .primary-btn {
+      background: var(--forest-700);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(46, 89, 72, 0.25);
+    }
+
+    .primary-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Section Header */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 4px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .count-pill {
+      font-size: 11px;
+      font-weight: 700;
+      background: #e2e8f0;
+      color: #475569;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    /* Location Group Card (Active & Completed) */
+    .location-card {
+      background: #fff;
+      border-radius: 18px;
+      border: 2px solid #cbd5e1;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+    }
+
+    .location-card.active-card {
+      border: 2.5px solid var(--forest-600);
+      box-shadow: 0 6px 20px rgba(36, 69, 56, 0.14);
+    }
+
+    .card-header {
+      background: var(--forest-50);
+      border-bottom: 1px solid #d5e5dd;
+      padding: 12px 14px;
+    }
+
+    .active-card .card-header {
+      background: linear-gradient(135deg, var(--forest-800), var(--forest-700));
+      color: #fff;
+      border-bottom: none;
+    }
+
+    .card-header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--forest-800);
+    }
+
+    .active-card .meta-row {
+      color: #d1fae5;
+    }
+
+    .live-badge {
+      background: #34d399;
+      color: #06281e;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .date-tag {
+      background: #fff;
+      border: 1px solid #c2d9cb;
+      padding: 1px 7px;
+      border-radius: 6px;
+    }
+
+    .location-title {
+      margin: 5px 0 0;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .finish-btn {
+      background: var(--amber-400);
+      color: #1e293b;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 13px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-tools {
+      display: flex;
+      gap: 6px;
+    }
+
+    .small-tool-btn {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      border-radius: 8px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .summary-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .stat-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+    }
+
+    .stat-pill.species {
+      background: var(--forest-700);
+      color: #fff;
+      border-color: var(--forest-700);
+    }
+
+    .stat-pill.photo {
+      background: #f0fdfa;
+      color: #0f766e;
+      border-color: #99f6e4;
+    }
+
+    .stat-pill.voice {
+      background: #eef2ff;
+      color: #3730a3;
+      border-color: #c7d2fe;
+    }
+
+    .stat-pill.uncertain {
+      background: #faf5ff;
+      color: #6b21a8;
+      border-color: #e9d5ff;
+    }
+
+    .session-note-box {
+      margin-top: 8px;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #334155;
+      border: 1px solid #d5e5dd;
+    }
+
+    .active-card .session-note-box {
+      background: rgba(0, 0, 0, 0.22);
+      color: #ecfdf5;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Board Photos Strip */
+    .board-strip {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .board-strip-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .add-photo-btn {
+      background: #fff;
+      color: var(--forest-800);
+      border: 1px solid var(--border-forest);
+      border-radius: 7px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .photo-thumbs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin-top: 8px;
+      padding-bottom: 2px;
+    }
+
+    .thumb-btn {
+      width: 62px;
+      height: 62px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid #fff;
+      padding: 0;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+
+    .thumb-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Sightings Timeline */
+    .timeline-body {
+      padding: 12px 14px;
+    }
+
+    .sighting-item {
+      position: relative;
+      padding: 6px 8px 12px 22px;
+      margin-left: 6px;
+      border-left: 2px solid #c2d9cb;
+      cursor: pointer;
+      border-radius: 0 10px 10px 0;
+    }
+
+    .sighting-item:last-child {
+      border-left-color: transparent;
+      padding-bottom: 4px;
+    }
+
+    .sighting-item:hover {
+      background: #f8fafc;
+    }
+
+    .sighting-dot {
+      position: absolute;
+      left: -7px;
+      top: 10px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2.5px solid var(--forest-600);
+    }
+
+    .sighting-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .sighting-main {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .time-badge {
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--forest-100);
+      color: var(--forest-800);
+      padding: 1px 6px;
+      border-radius: 5px;
+    }
+
+    .bird-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .bird-count {
+      font-size: 11px;
+      font-weight: 800;
+      background: #e2e8f0;
+      color: #334155;
+      padding: 1px 6px;
+      border-radius: 5px;
+    }
+
+    .attr-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 5px;
+    }
+
+    .attr-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+    }
+
+    .tag-male { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+    .tag-female { background: #ffe4e6; color: #9f1239; border-color: #fecdd3; }
+    .tag-adult { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+    .tag-juvenile { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    .tag-voice { background: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
+    .tag-uncertain { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
+    .tag-photo { background: #ccfbf1; color: #115e59; border-color: #99f6e4; }
+
+    .sighting-memo {
+      margin: 5px 0 0;
+      font-size: 12px;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .card-footer-actions {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .danger-text-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .danger-text-btn.armed {
+      background: var(--rose-600);
+      color: #fff;
+    }
+
+    /* Spacious Bottom Input Dock (~42% height, zero scroll) */
+    .bottom-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 680px;
+      margin: 0 auto;
+      z-index: 35;
+      background: #ffffff;
+      border-top: 2.5px solid var(--forest-700);
+      box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.14);
+      padding: 12px 14px 16px;
+      min-height: 41vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .autocomplete-box {
+      position: absolute;
+      bottom: 100%;
+      left: 10px;
+      right: 10px;
+      margin-bottom: 8px;
+      background: #ffffff;
+      border: 2.5px solid var(--forest-700);
+      border-radius: 16px;
+      box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.28);
+      max-height: 230px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 45;
+      animation: popUp 0.14s ease-out;
+    }
+
+    @keyframes popUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ac-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--forest-900);
+      color: #e2e8f0;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .ac-close-btn {
+      background: rgba(255, 255, 255, 0.16);
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .ac-list {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ac-item {
+      width: 100%;
+      text-align: left;
+      background: #fff;
+      border: none;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 11px 14px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .ac-item:last-child {
+      border-bottom: none;
+    }
+
+    .ac-item:hover, .ac-item:active {
+      background: var(--forest-100);
+    }
+
+    .ac-match {
+      color: #047857;
+      background: #d1fae5;
+      border-radius: 3px;
+      padding: 0 1px;
+    }
+
+    .ac-badges {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .ac-hist-badge {
+      font-size: 10px;
+      font-weight: 800;
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .ac-select-tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--forest-700);
+      background: var(--forest-50);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    .dock-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--forest-900);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .dock-top-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .bird-input-wrap {
+      position: relative;
+      flex: 1;
+    }
+
+    .bird-input {
+      width: 100%;
+      height: 46px;
+      padding: 0 34px 0 12px;
+      border-radius: 12px;
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      outline: none;
+    }
+
+    .bird-input:focus {
+      background: #fff;
+      border-color: var(--forest-600);
+    }
+
+    .clear-bird-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #e2e8f0;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 0 4px;
+    }
+
+    .step-btn {
+      width: 38px;
+      height: 40px;
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      font-weight: 900;
+      color: #1e293b;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .step-btn:active {
+      background: #e2e8f0;
+    }
+
+    .step-val {
+      min-width: 40px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    /* 4x2 Attribute Grid */
+    .attr-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .attr-btn {
+      height: 42px;
+      border-radius: 11px;
+      border: 1.5px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 0 4px;
+    }
+
+    .attr-btn.span-2 {
+      grid-column: span 2;
+    }
+
+    .attr-btn.checked-male { background: #0284c7; color: #fff; border-color: #0284c7; }
+    .attr-btn.checked-female { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .attr-btn.checked-adult { background: #059669; color: #fff; border-color: #059669; }
+    .attr-btn.checked-juvenile { background: #d97706; color: #fff; border-color: #d97706; }
+    .attr-btn.checked-voice { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+    .attr-btn.checked-uncertain { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+    .attr-btn.checked-photo { background: #0d9488; color: #fff; border-color: #0d9488; }
+
+    .dock-bottom-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .memo-input {
+      flex: 1;
+      height: 46px;
+      padding: 0 12px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 13px;
+      color: #0f172a;
+      outline: none;
+    }
+
+    .memo-input:focus {
+      background: #fff;
+      border-color: var(--forest-600);
+    }
+
+    .submit-log-btn {
+      height: 46px;
+      padding: 0 18px;
+      border-radius: 12px;
+      border: none;
+      background: var(--forest-700);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(46, 89, 72, 0.25);
+    }
+
+    .submit-log-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.65);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+
+    @media (min-width: 600px) {
+      .modal-backdrop {
+        align-items: center;
+        padding: 16px;
+      }
+    }
+
+    .modal-box {
+      background: #fff;
+      width: 100%;
+      max-width: 460px;
+      border-radius: 22px 22px 0 0;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+
+    @media (min-width: 600px) {
+      .modal-box {
+        border-radius: 18px;
+      }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .close-x {
+      background: #f1f5f9;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #475569;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 5px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid #cbd5e1;
+      font-size: 14px;
+      font-weight: 600;
+      background: #f8fafc;
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .preset-chip {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .secondary-btn {
+      flex: 1;
+      padding: 11px;
+      border-radius: 11px;
+      border: 1.5px solid #cbd5e1;
+      background: #fff;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(2, 6, 23, 0.94);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+    }
+
+    .lightbox-img-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      margin: 12px 0;
+    }
+
+    .lightbox-img-wrap img {
+      max-width: 100%;
+      max-height: 75vh;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 68px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 70;
+      background: rgba(15, 23, 42, 0.94);
+      color: #fff;
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-icon">🔭</div>
+          <div>
+            <h1 class="brand-title">
+              BirdStacker
+              <span class="brand-badge">野鳥記録帳</span>
+            </h1>
+            <p class="brand-sub">探鳥開始 → サクッと記録 → 探鳥地ごとに自動まとめ</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" id="openStatsBtn" class="icon-btn">📊 観察種</button>
+          <button type="button" id="toggleFilterBtn" class="icon-btn">
+            🔍 検索
+            <span id="filterDot" class="filter-dot hidden"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsible Search & Year/Month Filter Bar -->
+      <div id="filterPanel" class="filter-panel hidden">
+        <div class="filter-ym-row">
+          <select id="filterYear" class="filter-select">
+            <option value="">📅 すべての年</option>
+          </select>
+          <select id="filterMonth" class="filter-select">
+            <option value="">🗓️ すべての月</option>
+            <option value="1">1月</option>
+            <option value="2">2月</option>
+            <option value="3">3月</option>
+            <option value="4">4月</option>
+            <option value="5">5月</option>
+            <option value="6">6月</option>
+            <option value="7">7月</option>
+            <option value="8">8月</option>
+            <option value="9">9月</option>
+            <option value="10">10月</option>
+            <option value="11">11月</option>
+            <option value="12">12月</option>
+          </select>
+        </div>
+
+        <input type="text" id="filterKeyword" class="filter-input" placeholder="鳥名・探鳥地・メモで検索..." />
+
+        <div class="filter-chips">
+          <button type="button" class="chip-btn" data-qf="photo">📷 写真有のみ</button>
+          <button type="button" class="chip-btn" data-qf="voice">🔊 声のみ</button>
+          <button type="button" class="chip-btn" data-qf="uncertain">❓ 未確定のみ</button>
+          <button type="button" id="resetFilterBtn" class="chip-reset hidden">条件クリア</button>
+        </div>
+
+        <div id="filterSummary" class="filter-summary hidden"></div>
+      </div>
+    </header>
+
+    <!-- Hidden File Input for Board Photos -->
+    <input type="file" id="boardPhotoInput" accept="image/*" multiple class="hidden" />
+
+    <!-- Main Timeline Feed -->
+    <main id="mainFeed" class="main-feed">
+      <div id="activeSessionArea"></div>
+
+      <div id="startBannerArea">
+        <div class="start-card">
+          <div style="font-size: 32px;">📍</div>
+          <h2>新しい探鳥をはじめますか？</h2>
+          <p>探鳥地を入れて開始すると、見つけた鳥を連続メモでき、終了時に1つのブロックにまとまります。</p>
+          <button type="button" id="openStartModalBtn" class="primary-btn">▶ 探鳥開始</button>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <span class="section-title">🌲 過去の探鳥記録（探鳥地グループ）</span>
+        <span id="completedCountPill" class="count-pill">0件</span>
+      </div>
+
+      <div id="completedListArea" style="display: flex; flex-direction: column; gap: 16px;"></div>
+    </main>
+
+    <!-- Spacious Bottom Input Dock (Active during birdwatching) -->
+    <section id="bottomDock" class="bottom-dock hidden">
+      <div id="autocompleteBox" class="autocomplete-box hidden"></div>
+
+      <form id="sightingForm" style="display: flex; flex-direction: column; justify-content: space-between; flex: 1; gap: 8px;">
+        <div>
+          <div class="dock-label">
+            <span>🐦 観察した鳥・羽数</span>
+            <span style="color: #64748b; font-weight: 500;">入力後「記録する」で積み上げ</span>
+          </div>
+          <div class="dock-top-row">
+            <div class="bird-input-wrap">
+              <input type="text" id="birdNameInput" class="bird-input" autocomplete="off" placeholder="鳥名を入力 (例: カワセミ)" />
+              <button type="button" id="clearBirdInputBtn" class="clear-bird-btn hidden">✕</button>
+            </div>
+            <div class="stepper">
+              <button type="button" id="countMinusBtn" class="step-btn">−</button>
+              <div class="step-val"><span id="countVal">1</span><span style="font-size: 11px; color: #64748b;">羽</span></div>
+              <button type="button" id="countPlusBtn" class="step-btn">＋</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="dock-label"><span>☑️ 状態・属性チェック（複数選択可）</span></div>
+          <div class="attr-grid" id="dockAttrGrid">
+            <button type="button" class="attr-btn" data-attr="male">♂ オス</button>
+            <button type="button" class="attr-btn" data-attr="female">♀ メス</button>
+            <button type="button" class="attr-btn" data-attr="adult">成鳥</button>
+            <button type="button" class="attr-btn" data-attr="juvenile">幼鳥</button>
+            <button type="button" class="attr-btn" data-attr="voice">🔊 声のみ</button>
+            <button type="button" class="attr-btn" data-attr="uncertain">未確定</button>
+            <button type="button" class="attr-btn span-2" data-attr="photo">📷 写真有</button>
+          </div>
+        </div>
+
+        <div class="dock-bottom-row">
+          <input type="text" id="sightingMemoInput" class="memo-input" placeholder="ひとことメモ（さえずり、上空通過など）" />
+          <button type="submit" class="submit-log-btn">記録する ➤</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- Start Birding Modal -->
+  <div id="startModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>📍 探鳥を開始する</h3>
+        <button type="button" class="close-x" data-close-modal="startModal">✕</button>
+      </div>
+      <form id="startSessionForm">
+        <div class="form-group">
+          <label class="form-label">探鳥地名 *</label>
+          <input type="text" id="locationInput" class="form-control" required placeholder="例: 大洗海岸、涸沼、明治神宮" />
+          <div id="locationPresets" class="preset-chips"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;" class="form-group">
+          <div>
+            <label class="form-label">天気（任意）</label>
+            <select id="weatherSelect" class="form-control">
+              <option value="☀️ 晴れ">☀️ 晴れ</option>
+              <option value="⛅ 曇り">⛅ 曇り</option>
+              <option value="🌧️ 雨">🌧️ 雨</option>
+              <option value="🍃 風強め">🍃 風強め</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">開始時刻</label>
+            <div id="startTimePreview" class="form-control" style="background: #e2e8f0;">--:--</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">探鳥メモ（任意）</label>
+          <input type="text" id="sessionNoteInput" class="form-control" placeholder="例: 干潮狙い、シギ・チドリ中心" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" data-close-modal="startModal">キャンセル</button>
+          <button type="submit" class="primary-btn" style="flex: 2;">この場所で探鳥開始</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- End Birding Confirmation Modal -->
+  <div id="endModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>✅ 探鳥を終了してまとめますか？</h3>
+        <button type="button" class="close-x" data-close-modal="endModal">✕</button>
+      </div>
+      <p style="font-size: 12px; color: #475569; margin: 0 0 12px;">これまでの観察記録を1つの探鳥地グループ枠に格納します。</p>
+      <div id="endPreviewBox" style="background: #f2f8f5; border: 1px solid #a7c9b8; border-radius: 12px; padding: 12px; font-size: 13px;"></div>
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" data-close-modal="endModal">まだ続ける</button>
+        <button type="button" id="confirmEndBtn" class="primary-btn" style="flex: 1.5;">探鳥終了・まとめる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Sighting Modal -->
+  <div id="editModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>✏️ 観察記録の編集</h3>
+        <button type="button" class="close-x" data-close-modal="editModal">✕</button>
+      </div>
+      <form id="editSightingForm">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;" class="form-group">
+          <div>
+            <label class="form-label">鳥名</label>
+            <input type="text" id="editBirdName" class="form-control" required />
+          </div>
+          <div>
+            <label class="form-label">羽数</label>
+            <input type="number" id="editBirdCount" class="form-control" min="1" max="9999" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">チェック項目</label>
+          <div id="editAttrGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">メモ</label>
+          <input type="text" id="editBirdMemo" class="form-control" />
+        </div>
+        <div class="modal-actions" style="justify-content: space-between;">
+          <button type="button" id="deleteSightingBtn" style="background: #ffe4e6; color: #be123c; border: none; border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 800; cursor: pointer;">🗑️ 削除</button>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="secondary-btn" data-close-modal="editModal">戻る</button>
+            <button type="submit" class="primary-btn">保存する</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Stats Modal -->
+  <div id="statsModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>📊 観察種リスト・通算集計</h3>
+        <button type="button" class="close-x" data-close-modal="statsModal">✕</button>
+      </div>
+      <div id="statsModalBody"></div>
+      <div class="modal-actions">
+        <button type="button" id="exportJsonBtn" class="secondary-btn">💾 JSON保存</button>
+        <button type="button" class="primary-btn" data-close-modal="statsModal">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal for Board Photos -->
+  <div id="lightboxModal" class="lightbox hidden">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div id="lbTitle" style="font-size: 14px; font-weight: 800;">🪧 現地情報写真</div>
+        <div id="lbMeta" style="font-size: 11px; color: #cbd5e1;"></div>
+      </div>
+      <button type="button" id="closeLightboxBtn" style="background: rgba(255,255,255,0.2); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; font-size: 16px; cursor: pointer;">✕</button>
+    </div>
+    <div class="lightbox-img-wrap">
+      <img id="lbImage" src="" alt="現地情報写真" />
+    </div>
+    <div style="display: flex; justify-content: space-between; gap: 10px;">
+      <button type="button" id="deleteBoardPhotoBtn" style="background: #e11d48; color: #fff; border: none; border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 800; cursor: pointer;">🗑️ この写真を削除</button>
+      <button type="button" id="closeLightboxBottomBtn" style="background: #fff; color: #0f172a; border: none; border-radius: 10px; padding: 10px 20px; font-size: 13px; font-weight: 800; cursor: pointer;">閉じる</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var STORAGE_KEY = 'birdstacker_v3_sessions';
+
+      var ATTR_DEFS = [
+        { key: 'male', label: '♂ オス', short: '♂オス', tagClass: 'tag-male', btnClass: 'checked-male' },
+        { key: 'female', label: '♀ メス', short: '♀メス', tagClass: 'tag-female', btnClass: 'checked-female' },
+        { key: 'adult', label: '成鳥', short: '成鳥', tagClass: 'tag-adult', btnClass: 'checked-adult' },
+        { key: 'juvenile', label: '幼鳥', short: '幼鳥', tagClass: 'tag-juvenile', btnClass: 'checked-juvenile' },
+        { key: 'voice', label: '🔊 声のみ', short: '🔊声のみ', tagClass: 'tag-voice', btnClass: 'checked-voice' },
+        { key: 'uncertain', label: '未確定', short: '未確定', tagClass: 'tag-uncertain', btnClass: 'checked-uncertain' },
+        { key: 'photo', label: '📷 写真有', short: '📷写真有', tagClass: 'tag-photo', btnClass: 'checked-photo' }
+      ];
+
+      var BIRD_DICT = [
+        // 身近な小鳥・里山・森林
+        'スズメ', 'ニュウナイスズメ', 'ハシブトガラス', 'ハシボソガラス', 'ミヤマガラス', 'コクマルガラス', 'カケス', 'オナガ',
+        'キジバト', 'ドバト', 'アオバト', 'ヒヨドリ', 'ムクドリ', 'コムクドリ', 'ギンムクドリ', 'ホシムクドリ',
+        'シジュウカラ', 'ヤマガラ', 'ヒガラ', 'コガラ', 'エナガ', 'ゴジュウカラ', 'キバシリ', 'メジロ',
+        'コゲラ', 'アオゲラ', 'アカゲラ', 'オオアカゲラ', 'クマゲラ', 'アリスイ',
+        'ウグイス', 'ヤブサメ', 'センダイムシクイ', 'エゾムシクイ', 'メボソムシクイ', 'キクイタダキ',
+        'セグロセキレイ', 'ハクセキレイ', 'キセキレイ', 'ビンズイ', 'タヒバリ',
+        'モズ', 'アカモズ', 'チゴモズ', 'オオモズ',
+        'ジョウビタキ', 'ルリビタキ', 'ノビタキ', 'イソヒヨドリ', 'トラツグミ', 'クロツグミ', 'アカハラ', 'シロハラ', 'マミチャジナイ', 'ツグミ',
+        'キビタキ', 'オオルリ', 'コサメビタキ', 'サメビタキ', 'エゾビタキ', 'サンコウチョウ', 'サンショウクイ',
+        'カワラヒワ', 'オオカワラヒワ', 'マヒワ', 'ベニマシコ', 'オオマシコ', 'ウソ', 'シメ', 'イカル', 'コイカル', 'イスカ',
+        'ホオジロ', 'ホオアカ', 'カシラダカ', 'ミヤマホオジロ', 'アオジ', 'クロジ', 'ノジコ', 'オオジュリン', 'コジュリン',
+        'ツバメ', 'コシアカツバメ', 'イワツバメ', 'ショウドウツバメ', 'アマツバメ', 'ハリオアマツバメ',
+        'カワセミ', 'ヤマセミ', 'アカショウビン', 'ブッポウソウ', 'ヤツガシラ',
+        'カッコウ', 'ホトトギス', 'ツツドリ', 'ジュウイチ',
+        'キジ', 'コジュケイ', 'ヤマドリ', 'ウズラ', 'ライチョウ',
+        'ミソサザイ', 'カワガラス', 'ヒレンジャク', 'キレンジャク', 'フクロウ', 'アオバズク', 'コミミズク', 'トラフズク', 'コノハズク',
+        // カモ・ハクチョウ・ガン類
+        'カルガモ', 'マガモ', 'コガモ', 'トモエガモ', 'ヨシガモ', 'オカヨシガモ', 'ヒドリガモ', 'アメリカヒドリ',
+        'オナガガモ', 'シマアジ', 'ハシビロガモ', 'ツクシガモ', 'オシドリ',
+        'ホシハジロ', 'キンクロハジロ', 'スズガモ', 'コスズガモ', 'アカハジロ', 'メジロガモ',
+        'シノリガモ', 'クロガモ', 'ビロードキンクロ', 'コオリガモ', 'ホオジロガモ',
+        'ミコアイサ', 'ウミアイサ', 'カワアイサ',
+        'オオハクチョウ', 'コハクチョウ', 'コブハクチョウ',
+        'マガン', 'ヒシクイ', 'カリガネ', 'ハクガン', 'コクガン', 'カナダガン',
+        // サギ・クイナ・カイツブリ・ウ・ペリカン目
+        'アオサギ', 'ダイサギ', 'チュウサギ', 'コサギ', 'アマサギ', 'ゴイサギ', 'ササゴイ', 'ミゾゴイ', 'ヨシゴイ', 'サンカノゴイ', 'クロサギ', 'ヘラサギ', 'クロツラヘラサギ',
+        'オオバン', 'バン', 'ヒクイナ', 'クイナ', 'ツルシギ', 'タンチョウ', 'マナヅル', 'ナベヅル',
+        'カイツブリ', 'カンムリカイツブリ', 'ハジロカイツブリ', 'ミミカイツブリ', 'アカエリカイツブリ',
+        'カワウ', 'ウミウ', 'ヒメウ', 'チシマウガラス',
+        // 猛禽類（タカ・ワシ・ハヤブサ）
+        'トビ', 'ミサゴ', 'ノスリ', 'ケアシノスリ', 'オオノスリ',
+        'オオタカ', 'ハイタカ', 'ツミ', 'アカハラダカ', 'サシバ', 'ハチクマ',
+        'チュウヒ', 'ハイイロチュウヒ', 'マダラチュウヒ',
+        'オジロワシ', 'オオワシ', 'イヌワシ', 'クマタカ', 'カンムリワシ',
+        'チョウゲンボウ', 'コチョウゲンボウ', 'ハヤブサ', 'チゴハヤブサ',
+        // シギ・チドリ類
+        'コチドリ', 'イカルチドリ', 'シロチドリ', 'メダイチドリ', 'オオメダイチドリ', 'ムナグロ', 'ダイゼン', 'ケリ', 'タゲリ',
+        'イソシギ', 'クサシギ', 'タカブシギ', 'キアシシギ', 'メリケンキアシシギ', 'アオアシシギ', 'コアオアシシギ',
+        'ツルシギ', 'アカアシシギ', 'セイタカシギ', 'ソリハシシギ', 'オオソリハシシギ', 'オグロシギ', 'チュウシャクシギ', 'ダイシャクシギ', 'ホウロクシギ',
+        'トウネン', 'ヒバリシギ', 'オジロトウネン', 'ハマシギ', 'ミユビシギ', 'キョウジョシギ', 'オバシギ', 'コオバシギ', 'サルハマシギ', 'エリマキシギ',
+        'タシギ', 'チュウジシギ', 'オオジシギ', 'ヤマシギ', 'タマシギ', 'アカエリヒレアシシギ',
+        // カモメ・海鳥類
+        'ユリカモメ', 'ズグロカモメ', 'ウミネコ', 'カモメ', 'セグロカモメ', 'オオセグロカモメ', 'ワシカモメ', 'シロカモメ', 'ミツユビカモメ',
+        'コアジサシ', 'アジサシ', 'オオアジサシ', 'クロハラアジサシ', 'ハジロクロハラアジサシ',
+        'オオハム', 'シロエリオオハム', 'アビ', 'ウミスズメ', 'カンムリウミスズメ', 'ウトウ', 'ケイマフリ',
+        'オオミズナギドリ', 'ハシボソミズナギドリ', 'フルマカモメ', 'コアホウドリ', 'クロアシアホウドリ', 'カツオドリ'
+      ];
+
+      // 漢字キーワード・別名マッピング（漢字で検索した際も対応種をヒットさせる）
+      var KANJI_ALIAS_MAP = {
+        '鴨': ['カルガモ', 'マガモ', 'コガモ', 'オナガガモ', 'ヒドリガモ', 'キンクロハジロ', 'ハシビロガモ', 'シノリガモ', 'クロガモ', 'オシドリ'],
+        '鷺': ['アオサギ', 'ダイサギ', 'チュウサギ', 'コサギ', 'ゴイサギ', 'アマサギ', 'クロサギ'],
+        '鷹': ['オオタカ', 'ハイタカ', 'ノスリ', 'トビ', 'サシバ', 'ハチクマ', 'チュウヒ', 'ミサゴ'],
+        '鷲': ['オジロワシ', 'オオワシ', 'イヌワシ', 'クマタカ'],
+        '隼': ['ハヤブサ', 'チョウゲンボウ', 'コチョウゲンボウ', 'チゴハヤブサ'],
+        '雀': ['スズメ', 'ニュウナイスズメ', 'ヒバリ', 'ウミスズメ'],
+        '鴉': ['ハシブトガラス', 'ハシボソガラス', 'ミヤマガラス'],
+        '烏': ['ハシブトガラス', 'ハシボソガラス', 'カワウ', 'ウミウ'],
+        '鳩': ['キジバト', 'ドバト', 'アオバト'],
+        '燕': ['ツバメ', 'コシアカツバメ', 'イワツバメ', 'ショウドウツバメ'],
+        '鴎': ['ユリカモメ', 'ウミネコ', 'セグロカモメ', 'オオセグロカモメ', 'カモメ'],
+        '鴫': ['イソシギ', 'ハマシギ', 'ミユビシギ', 'タシギ', 'アオアシシギ', 'チュウシャクシギ'],
+        '千鳥': ['コチドリ', 'シロチドリ', 'イカルチドリ', 'メダイチドリ', 'ムナグロ', 'ダイゼン', 'ケリ', 'タゲリ'],
+        '白鳥': ['オオハクチョウ', 'コハクチョウ', 'コブハクチョウ'],
+        '翡翠': ['カワセミ', 'ヤマセミ', 'アカショウビン'],
+        '鴬': ['ウグイス'],
+        '鶯': ['ウグイス'],
+        '目白': ['メジロ'],
+        '頬白': ['ホオジロ'],
+        '四十雀': ['シジュウカラ'],
+        '山雀': ['ヤマガラ'],
+        '柄長': ['エナガ'],
+        '百舌': ['モズ'],
+        '百舌鳥': ['モズ'],
+        '鶫': ['ツグミ', 'シロハラ', 'アカハラ', 'トラツグミ'],
+        '鶴': ['タンチョウ', 'マナヅル', 'ナベヅル'],
+        '梟': ['フクロウ', 'アオバズク', 'コミミズク']
+      };
+
+      var state = {
+        activeSession: null,
+        completedSessions: [],
+        collapsedIds: {},
+        filters: {
+          year: '',
+          month: '',
+          keyword: '',
+          photo: false,
+          voice: false,
+          uncertain: false
+        }
+      };
+
+      var dockInput = {
+        count: 1,
+        attrs: { male: false, female: false, adult: false, juvenile: false, voice: false, uncertain: false, photo: false }
+      };
+
+      var editContext = { sessionId: null, sightingId: null, attrs: {} };
+      var pendingPhotoSessionId = null;
+      var lightboxContext = { sessionId: null, photoId: null };
+
+      // ---------- Utility Helpers ----------
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      // ひらがなをカタカナへ変換（予測変換の柔軟照合用）
+      function hiraToKata(str) {
+        if (!str) return '';
+        return String(str).replace(/[\u3041-\u3096]/g, function (ch) {
+          return String.fromCharCode(ch.charCodeAt(0) + 0x60);
+        });
+      }
+
+      // 検索一致箇所をハイライト表示するHTMLを生成
+      function highlightMatch(birdName, kataQuery) {
+        if (!kataQuery) return escapeHtml(birdName);
+        var idx = birdName.indexOf(kataQuery);
+        if (idx === -1) return escapeHtml(birdName);
+        var before = birdName.slice(0, idx);
+        var hit = birdName.slice(idx, idx + kataQuery.length);
+        var after = birdName.slice(idx + kataQuery.length);
+        return escapeHtml(before) + '<span class="ac-match">' + escapeHtml(hit) + '</span>' + escapeHtml(after);
+      }
+
+      function showToast(msg) {
+        var el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(el._timer);
+        el._timer = setTimeout(function () {
+          el.classList.remove('show');
+        }, 2200);
+      }
+
+      function nowTimeHHMM() {
+        var d = new Date();
+        var hh = String(d.getHours()).padStart(2, '0');
+        var mm = String(d.getMinutes()).padStart(2, '0');
+        return hh + ':' + mm;
+      }
+
+      function todayYMD() {
+        var d = new Date();
+        var y = d.getFullYear();
+        var m = String(d.getMonth() + 1).padStart(2, '0');
+        var day = String(d.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + day;
+      }
+
+      function formatYMDtoJP(ymd) {
+        if (!ymd) return '';
+        var parts = ymd.split('-');
+        if (parts.length !== 3) return ymd;
+        var y = parseInt(parts[0], 10);
+        var m = parseInt(parts[1], 10);
+        var d = parseInt(parts[2], 10);
+        var dt = new Date(y, m - 1, d);
+        var days = ['日', '月', '火', '水', '木', '金', '土'];
+        return y + '/' + m + '/' + d + '(' + days[dt.getDay()] + ')';
+      }
+
+      // ---------- Storage & Sample Data ----------
+      function createSampleBoardDataUrl() {
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="380" viewBox="0 0 600 380">' +
+          '<rect width="600" height="380" rx="14" fill="#244538"/>' +
+          '<rect x="16" y="16" width="568" height="348" rx="10" fill="#f8fafc"/>' +
+          '<rect x="16" y="16" width="568" height="48" rx="8" fill="#1b342a"/>' +
+          '<text x="34" y="47" font-family="sans-serif" font-size="19" font-weight="bold" fill="#ffffff">📋 現地観察情報ホワイトボード（大洗海岸）</text>' +
+          '<text x="34" y="98" font-family="sans-serif" font-size="17" font-weight="bold" fill="#0f172a">・7:15 磯前神社下 岩礁：シノリガモ ♂2♀2 採餌中</text>' +
+          '<text x="34" y="134" font-family="sans-serif" font-size="17" font-weight="bold" fill="#0f172a">・7:40 砂浜北側：ミユビシギ 10羽以上の群れ</text>' +
+          '<text x="34" y="170" font-family="sans-serif" font-size="17" font-weight="bold" fill="#0369a1">・8:00 堤防先端：クロサギ 1羽（有志メモ）</text>' +
+          '<text x="34" y="215" font-family="sans-serif" font-size="14" fill="#475569">※ 現地掲示板・ホワイトボード撮影サンプル画像</text>' +
+          '</svg>';
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      }
+
+      function createInitialSamples() {
+        return [
+          {
+            id: 'sample-2026-11',
+            date: '2026-11-15',
+            startTime: '07:30',
+            endTime: '09:15',
+            location: '大洗海岸・磯前神社下',
+            weather: '☀️ 晴れ',
+            note: '冬の海鳥・シギチドリ観察（サンプル）',
+            boardPhotos: [
+              { id: 'bp-1', addedAt: '2026-11-15 07:32', dataUrl: createSampleBoardDataUrl() }
+            ],
+            sightings: [
+              { id: 's-101', time: '07:38', birdName: 'イソヒヨドリ', count: 1, attrs: { male: true, female: false, adult: true, juvenile: false, voice: false, uncertain: false, photo: true }, memo: '鳥居近くの岩場でさえずり' },
+              { id: 's-102', time: '07:52', birdName: 'シノリガモ', count: 4, attrs: { male: true, female: true, adult: true, juvenile: false, voice: false, uncertain: false, photo: true }, memo: '波打ち際で採餌。♂2♀2の群れ' },
+              { id: 's-103', time: '08:14', birdName: 'ミユビシギ', count: 12, attrs: { male: false, female: false, adult: false, juvenile: false, voice: false, uncertain: false, photo: true }, memo: '砂浜を波に合わせて走り回る' },
+              { id: 's-104', time: '08:25', birdName: 'ウグイス', count: 1, attrs: { male: false, female: false, adult: false, juvenile: false, voice: true, uncertain: false, photo: false }, memo: '背後の松林から地鳴き（チャッ、チャッ）' },
+              { id: 's-105', time: '08:40', birdName: 'セグロカモメ類', count: 1, attrs: { male: false, female: false, adult: false, juvenile: true, voice: false, uncertain: true, photo: true }, memo: '第1回冬羽。帰宅後PCで識別再確認' }
+            ]
+          },
+          {
+            id: 'sample-2026-10',
+            date: '2026-10-18',
+            startTime: '08:00',
+            endTime: '10:10',
+            location: '涸沼・親沢公園周辺',
+            weather: '⛅ 曇り',
+            note: '秋の渡り・猛禽とヨシ原の小鳥（サンプル）',
+            boardPhotos: [],
+            sightings: [
+              { id: 's-201', time: '08:15', birdName: 'ミサゴ', count: 1, attrs: { male: false, female: false, adult: true, juvenile: false, voice: false, uncertain: false, photo: true }, memo: '湖面の上空を旋回後、ダイブして魚を捕獲' },
+              { id: 's-202', time: '08:45', birdName: 'モズ', count: 2, attrs: { male: true, female: true, adult: true, juvenile: false, voice: false, uncertain: false, photo: false }, memo: 'ヨシ原の杭の上で高鳴き' },
+              { id: 's-203', time: '09:20', birdName: 'オオジュリン', count: 3, attrs: { male: false, female: false, adult: false, juvenile: false, voice: true, uncertain: false, photo: false }, memo: 'ヨシの茎を割る音と地鳴き' }
+            ]
+          }
+        ];
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            activeSession: state.activeSession,
+            completedSessions: state.completedSessions,
+            collapsedIds: state.collapsedIds
+          }));
+        } catch (e) {
+          showToast('⚠️ 保存容量の上限に近づいています');
+        }
+      }
+
+      function loadState() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            state.activeSession = parsed.activeSession || null;
+            state.completedSessions = Array.isArray(parsed.completedSessions) ? parsed.completedSessions : [];
+            state.collapsedIds = parsed.collapsedIds || {};
+            return;
+          }
+        } catch (e) {
+          // Fallback to sample data on corrupted storage
+        }
+        state.completedSessions = createInitialSamples();
+        saveState();
+      }
+
+      function findSession(id) {
+        if (state.activeSession && state.activeSession.id === id) return state.activeSession;
+        for (var i = 0; i < state.completedSessions.length; i++) {
+          if (state.completedSessions[i].id === id) return state.completedSessions[i];
+        }
+        return null;
+      }
+
+      // ---------- Stats Calculation ----------
+      function getSessionStats(sess) {
+        var species = {};
+        var totalBirds = 0;
+        var photos = 0;
+        var voices = 0;
+        var uncertains = 0;
+
+        (sess.sightings || []).forEach(function (s) {
+          species[s.birdName.trim()] = true;
+          totalBirds += Number(s.count) || 1;
+          if (s.attrs && s.attrs.photo) photos++;
+          if (s.attrs && s.attrs.voice) voices++;
+          if (s.attrs && s.attrs.uncertain) uncertains++;
+        });
+
+        return {
+          speciesCount: Object.keys(species).length,
+          totalBirds: totalBirds,
+          logCount: (sess.sightings || []).length,
+          photos: photos,
+          voices: voices,
+          uncertains: uncertains
+        };
+      }
+
+      // ---------- Year/Month & Keyword Filtering ----------
+      function populateYearOptions() {
+        var yearSel = document.getElementById('filterYear');
+        var currentVal = state.filters.year;
+        var yearMap = { '2026': true, '2025': true };
+
+        if (state.activeSession && state.activeSession.date) {
+          yearMap[state.activeSession.date.split('-')[0]] = true;
+        }
+        state.completedSessions.forEach(function (s) {
+          if (s.date) yearMap[s.date.split('-')[0]] = true;
+        });
+
+        var years = Object.keys(yearMap).sort(function (a, b) { return Number(b) - Number(a); });
+        var html = '<option value="">📅 すべての年</option>';
+        years.forEach(function (y) {
+          html += '<option value="' + y + '">' + y + '年</option>';
+        });
+        yearSel.innerHTML = html;
+        yearSel.value = years.indexOf(currentVal) !== -1 ? currentVal : '';
+      }
+
+      function hasActiveFilter() {
+        var f = state.filters;
+        return Boolean(f.year || f.month || f.keyword || f.photo || f.voice || f.uncertain);
+      }
+
+      function matchesDateFilter(sess) {
+        var f = state.filters;
+        if (!f.year && !f.month) return true;
+        var parts = (sess.date || '').split('-');
+        if (parts.length < 2) return false;
+        var y = parts[0];
+        var m = String(parseInt(parts[1], 10));
+        if (f.year && y !== f.year) return false;
+        if (f.month && m !== f.month) return false;
+        return true;
+      }
+
+      function matchesSightingFilter(sighting, locationName) {
+        var f = state.filters;
+        if (f.photo && !(sighting.attrs && sighting.attrs.photo)) return false;
+        if (f.voice && !(sighting.attrs && sighting.attrs.voice)) return false;
+        if (f.uncertain && !(sighting.attrs && sighting.attrs.uncertain)) return false;
+        if (f.keyword) {
+          var hay = (sighting.birdName + ' ' + (sighting.memo || '') + ' ' + locationName).toLowerCase();
+          if (hay.indexOf(f.keyword) === -1) return false;
+        }
+        return true;
+      }
+
+      function updateFilterUI() {
+        var f = state.filters;
+        var active = hasActiveFilter();
+        document.getElementById('filterDot').classList.toggle('hidden', !active);
+        document.getElementById('resetFilterBtn').classList.toggle('hidden', !active);
+
+        var yEl = document.getElementById('filterYear');
+        var mEl = document.getElementById('filterMonth');
+        yEl.classList.toggle('active-select', Boolean(f.year));
+        mEl.classList.toggle('active-select', Boolean(f.month));
+
+        document.querySelectorAll('[data-qf]').forEach(function (btn) {
+          var key = btn.getAttribute('data-qf');
+          btn.classList.toggle('active', Boolean(f[key]));
+        });
+      }
+
+      // ---------- Rendering ----------
+      function renderSightingItem(sessionId, s) {
+        var badgesHtml = ATTR_DEFS.filter(function (def) {
+          return s.attrs && s.attrs[def.key];
+        }).map(function (def) {
+          return '<span class="attr-tag ' + def.tagClass + '">' + def.short + '</span>';
+        }).join('');
+
+        return (
+          '<div class="sighting-item" data-edit-session="' + escapeHtml(sessionId) + '" data-edit-sighting="' + escapeHtml(s.id) + '">' +
+            '<span class="sighting-dot"></span>' +
+            '<div class="sighting-top">' +
+              '<div class="sighting-main">' +
+                '<span class="time-badge">' + escapeHtml(s.time) + '</span>' +
+                '<span class="bird-name">' + escapeHtml(s.birdName) + '</span>' +
+                '<span class="bird-count">×' + (s.count || 1) + '</span>' +
+              '</div>' +
+              '<span style="font-size: 11px; color: #94a3b8;">編集</span>' +
+            '</div>' +
+            (badgesHtml ? '<div class="attr-badges">' + badgesHtml + '</div>' : '') +
+            (s.memo ? '<p class="sighting-memo">' + escapeHtml(s.memo) + '</p>' : '') +
+          '</div>'
+        );
+      }
+
+      function renderBoardStrip(sess) {
+        var photos = sess.boardPhotos || [];
+        var thumbsHtml = '';
+        if (photos.length > 0) {
+          thumbsHtml = '<div class="photo-thumbs">' + photos.map(function (p) {
+            return '<button type="button" class="thumb-btn" data-view-session="' + escapeHtml(sess.id) + '" data-view-photo="' + escapeHtml(p.id) + '">' +
+              '<img src="' + p.dataUrl + '" alt="現地情報写真" />' +
+            '</button>';
+          }).join('') + '</div>';
+        }
+
+        return (
+          '<div class="board-strip">' +
+            '<div class="board-strip-head">' +
+              '<span>🪧 看板・現地情報写真 (' + photos.length + '枚)</span>' +
+              '<button type="button" class="add-photo-btn" data-add-photo="' + escapeHtml(sess.id) + '">＋ 写真追加</button>' +
+            '</div>' +
+            thumbsHtml +
+          '</div>'
+        );
+      }
+
+      function renderActiveSession() {
+        var area = document.getElementById('activeSessionArea');
+        var banner = document.getElementById('startBannerArea');
+        var dock = document.getElementById('bottomDock');
+        var feed = document.getElementById('mainFeed');
+
+        if (!state.activeSession) {
+          area.innerHTML = '';
+          banner.classList.remove('hidden');
+          dock.classList.add('hidden');
+          feed.classList.remove('has-active-dock');
+          return;
+        }
+
+        banner.classList.add('hidden');
+        dock.classList.remove('hidden');
+        feed.classList.add('has-active-dock');
+
+        var sess = state.activeSession;
+        var stats = getSessionStats(sess);
+        var filtered = sess.sightings.filter(function (s) {
+          return matchesSightingFilter(s, sess.location);
+        });
+
+        var listHtml = filtered.length === 0
+          ? '<div style="text-align:center; padding: 18px 8px; color: #64748b; font-size: 12px;">下の入力パネルから見つけた鳥を記録しましょう</div>'
+          : filtered.map(function (s) { return renderSightingItem(sess.id, s); }).join('');
+
+        area.innerHTML =
+          '<section class="location-card active-card">' +
+            '<div class="card-header">' +
+              '<div class="card-header-top">' +
+                '<div>' +
+                  '<div class="meta-row">' +
+                    '<span class="live-badge">● 探鳥中</span>' +
+                    '<span>' + escapeHtml(sess.weather || '') + '</span>' +
+                    '<span>・開始 ' + escapeHtml(sess.startTime) + '</span>' +
+                  '</div>' +
+                  '<h2 class="location-title">📍 ' + escapeHtml(sess.location) + '</h2>' +
+                '</div>' +
+                '<button type="button" id="openEndModalBtn" class="finish-btn">■ 探鳥終了</button>' +
+              '</div>' +
+              (sess.note ? '<div class="session-note-box">' + escapeHtml(sess.note) + '</div>' : '') +
+              '<div style="display:flex; gap:12px; font-size:12px; margin-top:8px; color:#d1fae5;">' +
+                '<span>確認種: <strong style="color:#fff;">' + stats.speciesCount + '種</strong></span>' +
+                '<span>記録数: <strong style="color:#fff;">' + stats.logCount + '件</strong></span>' +
+                '<span>写真有: <strong style="color:#6ee7b7;">' + stats.photos + '件</strong></span>' +
+              '</div>' +
+              renderBoardStrip(sess) +
+            '</div>' +
+            '<div class="timeline-body">' + listHtml + '</div>' +
+          '</section>';
+      }
+
+      function renderCompletedSessions() {
+        var container = document.getElementById('completedListArea');
+        var pill = document.getElementById('completedCountPill');
+        var summaryEl = document.getElementById('filterSummary');
+
+        var filtering = hasActiveFilter();
+        var hasSightingFilter = Boolean(state.filters.keyword || state.filters.photo || state.filters.voice || state.filters.uncertain);
+
+        var cardsHtml = [];
+        state.completedSessions.forEach(function (sess) {
+          if (!matchesDateFilter(sess)) return;
+
+          var filteredSightings = sess.sightings.filter(function (s) {
+            return matchesSightingFilter(s, sess.location);
+          });
+          var locMatch = state.filters.keyword && sess.location.toLowerCase().indexOf(state.filters.keyword) !== -1;
+
+          if (hasSightingFilter && filteredSightings.length === 0 && !locMatch) return;
+
+          var stats = getSessionStats(sess);
+          var collapsed = Boolean(state.collapsedIds[sess.id]) && !filtering;
+
+          var bodyHtml = '';
+          if (collapsed) {
+            var spNames = [];
+            var seen = {};
+            sess.sightings.forEach(function (s) {
+              if (!seen[s.birdName]) {
+                seen[s.birdName] = true;
+                spNames.push(s.birdName);
+              }
+            });
+            bodyHtml =
+              '<div class="timeline-body" data-toggle-collapse="' + escapeHtml(sess.id) + '" style="cursor:pointer;">' +
+                '<div style="display:flex; flex-wrap:wrap; gap:5px;">' +
+                  spNames.map(function (n) {
+                    return '<span style="font-size:11px; background:#f1f5f9; padding:2px 8px; border-radius:999px; font-weight:600;">' + escapeHtml(n) + '</span>';
+                  }).join('') +
+                '</div>' +
+                '<div style="text-align:right; font-size:11px; font-weight:800; color:var(--forest-700); margin-top:8px;">タップして詳細を表示 ▼</div>' +
+              '</div>';
+          } else {
+            bodyHtml =
+              '<div class="timeline-body">' +
+                (filteredSightings.length === 0
+                  ? '<p style="text-align:center; font-size:12px; color:#94a3b8;">記録がありません</p>'
+                  : filteredSightings.map(function (s) { return renderSightingItem(sess.id, s); }).join('')) +
+                '<div class="card-footer-actions">' +
+                  '<span>各行をタップして編集</span>' +
+                  '<button type="button" class="danger-text-btn" data-delete-session="' + escapeHtml(sess.id) + '">削除</button>' +
+                '</div>' +
+              '</div>';
+          }
+
+          cardsHtml.push(
+            '<article class="location-card">' +
+              '<div class="card-header">' +
+                '<div class="card-header-top">' +
+                  '<div style="flex:1; min-width:0; cursor:pointer;" data-toggle-collapse="' + escapeHtml(sess.id) + '">' +
+                    '<div class="meta-row">' +
+                      '<span class="date-tag">' + escapeHtml(formatYMDtoJP(sess.date)) + '</span>' +
+                      '<span>' + escapeHtml(sess.startTime) + ' 〜 ' + escapeHtml(sess.endTime || '') + '</span>' +
+                      '<span>' + escapeHtml(sess.weather || '') + '</span>' +
+                    '</div>' +
+                    '<h3 class="location-title">📍 ' + escapeHtml(sess.location) + '</h3>' +
+                  '</div>' +
+                  '<div class="card-tools">' +
+                    '<button type="button" class="small-tool-btn" data-copy-session="' + escapeHtml(sess.id) + '">📋 コピー</button>' +
+                    '<button type="button" class="small-tool-btn" data-toggle-collapse="' + escapeHtml(sess.id) + '">' + (collapsed ? '▶' : '▼') + '</button>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="summary-badges">' +
+                  '<span class="stat-pill species">確認 ' + stats.speciesCount + '種</span>' +
+                  '<span class="stat-pill">計 ' + stats.totalBirds + '羽 (' + stats.logCount + '件)</span>' +
+                  (stats.photos > 0 ? '<span class="stat-pill photo">📷 写真 ' + stats.photos + '</span>' : '') +
+                  (stats.voices > 0 ? '<span class="stat-pill voice">🔊 声のみ ' + stats.voices + '</span>' : '') +
+                  (stats.uncertains > 0 ? '<span class="stat-pill uncertain">❓ 未確定 ' + stats.uncertains + '</span>' : '') +
+                '</div>' +
+                (sess.note ? '<div class="session-note-box">' + escapeHtml(sess.note) + '</div>' : '') +
+                renderBoardStrip(sess) +
+              '</div>' +
+              bodyHtml +
+            '</article>'
+          );
+        });
+
+        pill.textContent = cardsHtml.length + '件';
+
+        if (filtering) {
+          var parts = [];
+          if (state.filters.year) parts.push(state.filters.year + '年');
+          if (state.filters.month) parts.push(state.filters.month + '月');
+          if (state.filters.keyword) parts.push('「' + state.filters.keyword + '」');
+          if (state.filters.photo) parts.push('写真有');
+          if (state.filters.voice) parts.push('声のみ');
+          if (state.filters.uncertain) parts.push('未確定');
+          summaryEl.textContent = '🔍 ' + parts.join('・') + ' の検索結果: ' + cardsHtml.length + '件';
+          summaryEl.classList.remove('hidden');
+        } else {
+          summaryEl.classList.add('hidden');
+        }
+
+        if (cardsHtml.length === 0) {
+          container.innerHTML =
+            '<div style="background:#fff; border-radius:16px; padding:28px 16px; text-align:center; border:1px solid #cbd5e1; color:#64748b; font-size:13px;">' +
+              '表示できる探鳥記録がありません。<br><span style="font-size:11px;">「探鳥開始」から記録するか、検索条件をクリアしてください。</span>' +
+            '</div>';
+        } else {
+          container.innerHTML = cardsHtml.join('');
+        }
+      }
+
+      function renderDockAttrs() {
+        document.querySelectorAll('#dockAttrGrid .attr-btn').forEach(function (btn) {
+          var key = btn.getAttribute('data-attr');
+          var def = ATTR_DEFS.find(function (d) { return d.key === key; });
+          var active = Boolean(dockInput.attrs[key]);
+          btn.className = 'attr-btn' + (key === 'photo' ? ' span-2' : '') + (active && def ? ' ' + def.btnClass : '');
+          btn.textContent = (active ? '✓ ' : '') + (def ? def.label : key);
+        });
+      }
+
+      function renderAll() {
+        renderActiveSession();
+        renderCompletedSessions();
+        renderDockAttrs();
+      }
+
+      // ---------- Dock & Sighting Actions ----------
+      function updateAutocomplete(query) {
+        var box = document.getElementById('autocompleteBox');
+        var rawQ = query.trim();
+        document.getElementById('clearBirdInputBtn').classList.toggle('hidden', rawQ.length === 0);
+
+        if (!rawQ) {
+          box.classList.add('hidden');
+          return;
+        }
+
+        // ひらがな入力をカタカナに正規化（例：「かわ」→「カワ」）
+        var kataQ = hiraToKata(rawQ).toUpperCase();
+
+        // 過去履歴から観察済みの鳥名を学習（出現回数もカウント）
+        var historyCounts = {};
+        state.completedSessions.forEach(function (s) {
+          (s.sightings || []).forEach(function (item) {
+            var n = (item.birdName || '').trim();
+            if (n) historyCounts[n] = (historyCounts[n] || 0) + 1;
+          });
+        });
+        if (state.activeSession) {
+          (state.activeSession.sightings || []).forEach(function (item) {
+            var n = (item.birdName || '').trim();
+            if (n) historyCounts[n] = (historyCounts[n] || 0) + 1;
+          });
+        }
+
+        // 内蔵マスター辞書 + 過去履歴の全ユニーク鳥名を統合
+        var allPool = {};
+        Object.keys(historyCounts).forEach(function (name) { allPool[name] = true; });
+        BIRD_DICT.forEach(function (b) { allPool[b] = true; });
+
+        // 漢字別名キーワードに一致する種も抽出
+        var kanjiMatchedSet = {};
+        Object.keys(KANJI_ALIAS_MAP).forEach(function (kWord) {
+          if (rawQ.indexOf(kWord) !== -1 || kWord.indexOf(rawQ) !== -1) {
+            KANJI_ALIAS_MAP[kWord].forEach(function (targetBird) {
+              kanjiMatchedSet[targetBird] = true;
+            });
+          }
+        });
+
+        var prefixMatches = [];
+        var partialMatches = [];
+
+        Object.keys(allPool).forEach(function (name) {
+          // 完全一致してすでに入力完了している場合は候補から除外（他候補があればそちらを優先）
+          if (name === rawQ || name === kataQ) return;
+
+          var normName = hiraToKata(name).toUpperCase();
+          var isPrefix = normName.indexOf(kataQ) === 0 || name.indexOf(rawQ) === 0;
+          var isPartial = !isPrefix && (normName.indexOf(kataQ) !== -1 || name.indexOf(rawQ) !== -1 || Boolean(kanjiMatchedSet[name]));
+
+          if (isPrefix) {
+            prefixMatches.push(name);
+          } else if (isPartial) {
+            partialMatches.push(name);
+          }
+        });
+
+        // 履歴にある鳥を優先しつつ、文字数が短い順（基本種優先）にソート
+        function sortCandidates(arr) {
+          return arr.sort(function (a, b) {
+            var ha = historyCounts[a] || 0;
+            var hb = historyCounts[b] || 0;
+            if (ha !== hb) return hb - ha;
+            return a.length - b.length;
+          });
+        }
+
+        var combined = sortCandidates(prefixMatches).concat(sortCandidates(partialMatches)).slice(0, 15);
+
+        if (combined.length === 0) {
+          box.classList.add('hidden');
+          return;
+        }
+
+        var headerHtml =
+          '<div class="ac-header">' +
+            '<span>🔍 予測候補（' + combined.length + '件）タップで入力</span>' +
+            '<button type="button" class="ac-close-btn" id="closeAcBtn">閉じる ✕</button>' +
+          '</div>';
+
+        var listHtml = '<div class="ac-list">' + combined.map(function (name) {
+          var isHist = Boolean(historyCounts[name]);
+          return '<button type="button" class="ac-item" data-pick-bird="' + escapeHtml(name) + '">' +
+            '<span>' + highlightMatch(name, kataQ) + '</span>' +
+            '<span class="ac-badges">' +
+              (isHist ? '<span class="ac-hist-badge">★履歴</span>' : '') +
+              '<span class="ac-select-tag">選択</span>' +
+            '</span>' +
+          '</button>';
+        }).join('') + '</div>';
+
+        box.innerHTML = headerHtml + listHtml;
+        box.classList.remove('hidden');
+      }
+
+      function handleLogSubmit(e) {
+        e.preventDefault();
+        if (!state.activeSession) return;
+
+        var nameEl = document.getElementById('birdNameInput');
+        var memoEl = document.getElementById('sightingMemoInput');
+        var birdName = nameEl.value.trim();
+
+        if (!birdName) {
+          nameEl.focus();
+          showToast('⚠️ 鳥名を入力してください');
+          return;
+        }
+
+        state.activeSession.sightings.push({
+          id: 's-' + Date.now(),
+          time: nowTimeHHMM(),
+          birdName: birdName,
+          count: dockInput.count,
+          attrs: Object.assign({}, dockInput.attrs),
+          memo: memoEl.value.trim()
+        });
+
+        saveState();
+
+        // Reset input dock
+        nameEl.value = '';
+        memoEl.value = '';
+        document.getElementById('clearBirdInputBtn').classList.add('hidden');
+        document.getElementById('autocompleteBox').classList.add('hidden');
+        dockInput.count = 1;
+        document.getElementById('countVal').textContent = '1';
+        Object.keys(dockInput.attrs).forEach(function (k) { dockInput.attrs[k] = false; });
+
+        renderAll();
+        showToast('🐦 ' + birdName + ' を記録しました');
+      }
+
+      // ---------- Start / End Modals ----------
+      function openStartModal() {
+        document.getElementById('startTimePreview').textContent = nowTimeHHMM();
+        var presetsEl = document.getElementById('locationPresets');
+        var locs = {};
+        state.completedSessions.forEach(function (s) { locs[s.location] = true; });
+        ['大洗海岸', '涸沼', '霞ヶ浦湖畔', '明治神宮'].forEach(function (d) { locs[d] = true; });
+
+        presetsEl.innerHTML = Object.keys(locs).slice(0, 6).map(function (loc) {
+          return '<button type="button" class="preset-chip" data-preset-loc="' + escapeHtml(loc) + '">' + escapeHtml(loc) + '</button>';
+        }).join('');
+
+        document.getElementById('startModal').classList.remove('hidden');
+        setTimeout(function () { document.getElementById('locationInput').focus(); }, 80);
+      }
+
+      function handleStartSubmit(e) {
+        e.preventDefault();
+        var loc = document.getElementById('locationInput').value.trim();
+        if (!loc) return;
+
+        state.activeSession = {
+          id: 'sess-' + Date.now(),
+          date: todayYMD(),
+          startTime: nowTimeHHMM(),
+          endTime: '',
+          location: loc,
+          weather: document.getElementById('weatherSelect').value,
+          note: document.getElementById('sessionNoteInput').value.trim(),
+          boardPhotos: [],
+          sightings: []
+        };
+
+        document.getElementById('locationInput').value = '';
+        document.getElementById('sessionNoteInput').value = '';
+        document.getElementById('startModal').classList.add('hidden');
+        saveState();
+        populateYearOptions();
+        renderAll();
+        showToast('🌲 「' + loc + '」で探鳥を開始しました');
+      }
+
+      function openEndModal() {
+        if (!state.activeSession) return;
+        var stats = getSessionStats(state.activeSession);
+        document.getElementById('endPreviewBox').innerHTML =
+          '<div style="font-weight:800; font-size:14px; margin-bottom:4px;">📍 ' + escapeHtml(state.activeSession.location) + '</div>' +
+          '<div>🕒 開始: <strong>' + escapeHtml(state.activeSession.startTime) + '</strong> 〜 終了: <strong>' + nowTimeHHMM() + '</strong></div>' +
+          '<div>🐦 確認種数: <strong>' + stats.speciesCount + '種</strong> / 記録数: <strong>' + stats.logCount + '件</strong>（計' + stats.totalBirds + '羽）</div>';
+        document.getElementById('endModal').classList.remove('hidden');
+      }
+
+      function confirmEndSession() {
+        if (!state.activeSession) return;
+        var finished = Object.assign({}, state.activeSession, { endTime: nowTimeHHMM() });
+        state.completedSessions.unshift(finished);
+        state.activeSession = null;
+        document.getElementById('endModal').classList.add('hidden');
+        saveState();
+        populateYearOptions();
+        renderAll();
+        showToast('✅ 「' + finished.location + '」の記録をまとめました');
+      }
+
+      // ---------- Edit Sighting Modal ----------
+      function openEditModal(sessionId, sightingId) {
+        var sess = findSession(sessionId);
+        if (!sess) return;
+        var item = sess.sightings.find(function (s) { return s.id === sightingId; });
+        if (!item) return;
+
+        editContext.sessionId = sessionId;
+        editContext.sightingId = sightingId;
+        editContext.attrs = Object.assign({}, item.attrs);
+
+        document.getElementById('editBirdName').value = item.birdName;
+        document.getElementById('editBirdCount').value = item.count || 1;
+        document.getElementById('editBirdMemo').value = item.memo || '';
+        renderEditModalAttrs();
+        document.getElementById('editModal').classList.remove('hidden');
+      }
+
+      function renderEditModalAttrs() {
+        var grid = document.getElementById('editAttrGrid');
+        grid.innerHTML = ATTR_DEFS.map(function (def) {
+          var active = Boolean(editContext.attrs[def.key]);
+          return '<button type="button" class="attr-btn' + (active ? ' ' + def.btnClass : '') + '" data-edit-attr="' + def.key + '">' +
+            (active ? '✓ ' : '') + def.label +
+          '</button>';
+        }).join('');
+      }
+
+      function handleEditSubmit(e) {
+        e.preventDefault();
+        var sess = findSession(editContext.sessionId);
+        if (!sess) return;
+        var item = sess.sightings.find(function (s) { return s.id === editContext.sightingId; });
+        if (!item) return;
+
+        item.birdName = document.getElementById('editBirdName').value.trim();
+        item.count = Math.max(1, parseInt(document.getElementById('editBirdCount').value, 10) || 1);
+        item.memo = document.getElementById('editBirdMemo').value.trim();
+        item.attrs = Object.assign({}, editContext.attrs);
+
+        saveState();
+        document.getElementById('editModal').classList.add('hidden');
+        renderAll();
+        showToast('✏️ 記録を更新しました');
+      }
+
+      function handleDeleteSighting() {
+        var sess = findSession(editContext.sessionId);
+        if (!sess) return;
+        sess.sightings = sess.sightings.filter(function (s) { return s.id !== editContext.sightingId; });
+        saveState();
+        document.getElementById('editModal').classList.add('hidden');
+        renderAll();
+        showToast('🗑️ 記録を削除しました');
+      }
+
+      // ---------- Board Photo Attachment & Lightbox ----------
+      function compressImage(file, maxEdge, quality) {
+        return new Promise(function (resolve, reject) {
+          var reader = new FileReader();
+          reader.onerror = reject;
+          reader.onload = function (ev) {
+            var img = new Image();
+            img.onerror = reject;
+            img.onload = function () {
+              var w = img.width;
+              var h = img.height;
+              if (w > maxEdge || h > maxEdge) {
+                if (w > h) {
+                  h = Math.round((h * maxEdge) / w);
+                  w = maxEdge;
+                } else {
+                  w = Math.round((w * maxEdge) / h);
+                  h = maxEdge;
+                }
+              }
+              var canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, w, h);
+              resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.src = ev.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function handlePhotoFiles(files) {
+        if (!files || !files.length || !pendingPhotoSessionId) return;
+        var sess = findSession(pendingPhotoSessionId);
+        if (!sess) return;
+        if (!sess.boardPhotos) sess.boardPhotos = [];
+
+        showToast('🖼️ 写真を最適化して追加中...');
+        var tasks = Array.prototype.slice.call(files).map(function (f) {
+          return compressImage(f, 800, 0.75);
+        });
+
+        Promise.all(tasks).then(function (urls) {
+          urls.forEach(function (url, idx) {
+            sess.boardPhotos.push({
+              id: 'bp-' + Date.now() + '-' + idx,
+              addedAt: todayYMD() + ' ' + nowTimeHHMM(),
+              dataUrl: url
+            });
+          });
+          saveState();
+          renderAll();
+          showToast('🪧 看板・情報写真を' + urls.length + '枚追加しました');
+        }).catch(function () {
+          showToast('⚠️ 画像の読み込みに失敗しました');
+        });
+      }
+
+      function openLightbox(sessionId, photoId) {
+        var sess = findSession(sessionId);
+        if (!sess || !sess.boardPhotos) return;
+        var photo = sess.boardPhotos.find(function (p) { return p.id === photoId; });
+        if (!photo) return;
+
+        lightboxContext = { sessionId: sessionId, photoId: photoId };
+        document.getElementById('lbTitle').textContent = '🪧 ' + sess.location + ' の現地情報写真';
+        document.getElementById('lbMeta').textContent = '追加日時: ' + (photo.addedAt || '');
+        document.getElementById('lbImage').src = photo.dataUrl;
+        document.getElementById('lightboxModal').classList.remove('hidden');
+      }
+
+      function deleteViewingPhoto() {
+        var sess = findSession(lightboxContext.sessionId);
+        if (!sess || !sess.boardPhotos) return;
+        sess.boardPhotos = sess.boardPhotos.filter(function (p) { return p.id !== lightboxContext.photoId; });
+        saveState();
+        document.getElementById('lightboxModal').classList.add('hidden');
+        renderAll();
+        showToast('🗑️ 写真を削除しました');
+      }
+
+      // ---------- Copy & Stats ----------
+      function copySessionSummary(sessionId) {
+        var sess = findSession(sessionId);
+        if (!sess) return;
+        var stats = getSessionStats(sess);
+        var lines = [
+          '【探鳥記録】' + sess.location,
+          '日時: ' + formatYMDtoJP(sess.date) + ' ' + sess.startTime + '〜' + (sess.endTime || '') + (sess.weather ? ' (' + sess.weather + ')' : ''),
+          '確認種数: ' + stats.speciesCount + '種 / 計' + stats.totalBirds + '羽',
+          '--------------------'
+        ];
+        sess.sightings.forEach(function (s) {
+          var tags = ATTR_DEFS.filter(function (d) { return s.attrs && s.attrs[d.key]; }).map(function (d) { return d.short; });
+          var tagStr = tags.length ? ' [' + tags.join(', ') + ']' : '';
+          var memoStr = s.memo ? ' - ' + s.memo : '';
+          lines.push(s.time + ' ' + s.birdName + ' ×' + (s.count || 1) + tagStr + memoStr);
+        });
+
+        var text = lines.join('\n');
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('📋 テキストをクリップボードにコピーしました');
+        } catch (e) {
+          showToast('⚠️ コピーに失敗しました');
+        }
+        document.body.removeChild(ta);
+      }
+
+      function openStatsModal() {
+        var all = (state.activeSession ? [state.activeSession] : []).concat(state.completedSessions);
+        var spMap = {};
+        var totalLogs = 0;
+
+        all.forEach(function (sess) {
+          (sess.sightings || []).forEach(function (s) {
+            totalLogs++;
+            var key = s.birdName.trim();
+            if (!spMap[key]) spMap[key] = { name: key, count: 0, times: 0 };
+            spMap[key].count += Number(s.count) || 1;
+            spMap[key].times += 1;
+          });
+        });
+
+        var list = Object.keys(spMap).map(function (k) { return spMap[k]; }).sort(function (a, b) {
+          return b.times - a.times;
+        });
+
+        var body = document.getElementById('statsModalBody');
+        body.innerHTML =
+          '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; text-align:center;">' +
+            '<div style="background:#f2f8f5; border:1px solid #a7c9b8; border-radius:12px; padding:10px;">' +
+              '<div style="font-size:11px; font-weight:700; color:var(--forest-800);">累計観察種</div>' +
+              '<div style="font-size:22px; font-weight:900; color:var(--forest-900);">' + list.length + '<span style="font-size:12px;">種</span></div>' +
+            '</div>' +
+            '<div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:10px;">' +
+              '<div style="font-size:11px; font-weight:700; color:#475569;">総記録回数</div>' +
+              '<div style="font-size:22px; font-weight:900; color:#0f172a;">' + totalLogs + '<span style="font-size:12px;">件</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="max-height:260px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:12px;">' +
+            (list.length === 0
+              ? '<p style="text-align:center; padding:16px; font-size:12px; color:#94a3b8;">記録がありません</p>'
+              : list.map(function (sp, idx) {
+                  return '<div style="display:flex; justify-content:space-between; padding:8px 12px; border-bottom:1px solid #f1f5f9; font-size:13px;">' +
+                    '<span><strong>' + (idx + 1) + '.</strong> ' + escapeHtml(sp.name) + '</span>' +
+                    '<span style="color:#64748b; font-size:12px;">' + sp.times + '回 / 計' + sp.count + '羽</span>' +
+                  '</div>';
+                }).join('')) +
+          '</div>';
+
+        document.getElementById('statsModal').classList.remove('hidden');
+      }
+
+      function exportJsonBackup() {
+        var blob = new Blob([JSON.stringify({
+          exportedAt: new Date().toISOString(),
+          activeSession: state.activeSession,
+          completedSessions: state.completedSessions
+        }, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'birdstacker_' + todayYMD() + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('💾 JSONバックアップを保存しました');
+      }
+
+      // ---------- Event Delegation & Listeners ----------
+      function bindEvents() {
+        document.getElementById('toggleFilterBtn').addEventListener('click', function () {
+          var panel = document.getElementById('filterPanel');
+          panel.classList.toggle('hidden');
+          if (!panel.classList.contains('hidden')) {
+            populateYearOptions();
+          }
+        });
+
+        document.getElementById('filterYear').addEventListener('change', function (e) {
+          state.filters.year = e.target.value;
+          updateFilterUI();
+          renderAll();
+        });
+
+        document.getElementById('filterMonth').addEventListener('change', function (e) {
+          state.filters.month = e.target.value;
+          updateFilterUI();
+          renderAll();
+        });
+
+        document.getElementById('filterKeyword').addEventListener('input', function (e) {
+          state.filters.keyword = e.target.value.trim().toLowerCase();
+          updateFilterUI();
+          renderAll();
+        });
+
+        document.querySelectorAll('[data-qf]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var key = btn.getAttribute('data-qf');
+            state.filters[key] = !state.filters[key];
+            updateFilterUI();
+            renderAll();
+          });
+        });
+
+        document.getElementById('resetFilterBtn').addEventListener('click', function () {
+          state.filters = { year: '', month: '', keyword: '', photo: false, voice: false, uncertain: false };
+          document.getElementById('filterYear').value = '';
+          document.getElementById('filterMonth').value = '';
+          document.getElementById('filterKeyword').value = '';
+          updateFilterUI();
+          renderAll();
+        });
+
+        // Start / End / Stats Modals
+        document.getElementById('openStartModalBtn').addEventListener('click', openStartModal);
+        document.getElementById('startSessionForm').addEventListener('submit', handleStartSubmit);
+        document.getElementById('confirmEndBtn').addEventListener('click', confirmEndSession);
+        document.getElementById('openStatsBtn').addEventListener('click', openStatsModal);
+        document.getElementById('exportJsonBtn').addEventListener('click', exportJsonBackup);
+
+        // Close modal buttons
+        document.querySelectorAll('[data-close-modal]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var targetId = btn.getAttribute('data-close-modal');
+            document.getElementById(targetId).classList.add('hidden');
+          });
+        });
+
+        // Dock input controls
+        var birdInput = document.getElementById('birdNameInput');
+        birdInput.addEventListener('input', function () { updateAutocomplete(birdInput.value); });
+        birdInput.addEventListener('focus', function () { updateAutocomplete(birdInput.value); });
+
+        document.getElementById('clearBirdInputBtn').addEventListener('click', function () {
+          birdInput.value = '';
+          updateAutocomplete('');
+          birdInput.focus();
+        });
+
+        document.getElementById('countMinusBtn').addEventListener('click', function () {
+          dockInput.count = Math.max(1, dockInput.count - 1);
+          document.getElementById('countVal').textContent = String(dockInput.count);
+        });
+
+        document.getElementById('countPlusBtn').addEventListener('click', function () {
+          dockInput.count += 1;
+          document.getElementById('countVal').textContent = String(dockInput.count);
+        });
+
+        document.querySelectorAll('#dockAttrGrid .attr-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var key = btn.getAttribute('data-attr');
+            dockInput.attrs[key] = !dockInput.attrs[key];
+            if (key === 'adult' && dockInput.attrs.adult) dockInput.attrs.juvenile = false;
+            if (key === 'juvenile' && dockInput.attrs.juvenile) dockInput.attrs.adult = false;
+            renderDockAttrs();
+          });
+        });
+
+        document.getElementById('sightingForm').addEventListener('submit', handleLogSubmit);
+
+        // Edit Sighting Form
+        document.getElementById('editSightingForm').addEventListener('submit', handleEditSubmit);
+        document.getElementById('deleteSightingBtn').addEventListener('click', handleDeleteSighting);
+
+        // Photo file input & Lightbox
+        document.getElementById('boardPhotoInput').addEventListener('change', function (e) {
+          handlePhotoFiles(e.target.files);
+          e.target.value = '';
+        });
+
+        document.getElementById('closeLightboxBtn').addEventListener('click', function () {
+          document.getElementById('lightboxModal').classList.add('hidden');
+        });
+        document.getElementById('closeLightboxBottomBtn').addEventListener('click', function () {
+          document.getElementById('lightboxModal').classList.add('hidden');
+        });
+        document.getElementById('deleteBoardPhotoBtn').addEventListener('click', deleteViewingPhoto);
+
+        // Delegated clicks for dynamically generated elements
+        document.addEventListener('click', function (e) {
+          var target = e.target;
+
+          // Close autocomplete popup button
+          if (target.closest('#closeAcBtn')) {
+            document.getElementById('autocompleteBox').classList.add('hidden');
+            return;
+          }
+
+          // Click outside bottom dock closes autocomplete popup
+          if (!target.closest('#bottomDock')) {
+            var acBox = document.getElementById('autocompleteBox');
+            if (acBox && !acBox.classList.contains('hidden')) {
+              acBox.classList.add('hidden');
+            }
+          }
+
+          // Autocomplete pick
+          var acBtn = target.closest('[data-pick-bird]');
+          if (acBtn) {
+            birdInput.value = acBtn.getAttribute('data-pick-bird');
+            document.getElementById('autocompleteBox').classList.add('hidden');
+            document.getElementById('clearBirdInputBtn').classList.remove('hidden');
+            return;
+          }
+
+          // Preset location chip
+          var presetBtn = target.closest('[data-preset-loc]');
+          if (presetBtn) {
+            document.getElementById('locationInput').value = presetBtn.getAttribute('data-preset-loc');
+            return;
+          }
+
+          // Open end modal button
+          if (target.closest('#openEndModalBtn')) {
+            openEndModal();
+            return;
+          }
+
+          // Add board photo button
+          var addPhotoBtn = target.closest('[data-add-photo]');
+          if (addPhotoBtn) {
+            pendingPhotoSessionId = addPhotoBtn.getAttribute('data-add-photo');
+            document.getElementById('boardPhotoInput').click();
+            return;
+          }
+
+          // View board photo thumbnail
+          var thumbBtn = target.closest('[data-view-photo]');
+          if (thumbBtn) {
+            openLightbox(
+              thumbBtn.getAttribute('data-view-session'),
+              thumbBtn.getAttribute('data-view-photo')
+            );
+            return;
+          }
+
+          // Edit sighting row
+          var editRow = target.closest('[data-edit-sighting]');
+          if (editRow) {
+            openEditModal(
+              editRow.getAttribute('data-edit-session'),
+              editRow.getAttribute('data-edit-sighting')
+            );
+            return;
+          }
+
+          // Edit modal attr toggle
+          var editAttrBtn = target.closest('[data-edit-attr]');
+          if (editAttrBtn) {
+            var k = editAttrBtn.getAttribute('data-edit-attr');
+            editContext.attrs[k] = !editContext.attrs[k];
+            renderEditModalAttrs();
+            return;
+          }
+
+          // Copy session summary
+          var copyBtn = target.closest('[data-copy-session]');
+          if (copyBtn) {
+            copySessionSummary(copyBtn.getAttribute('data-copy-session'));
+            return;
+          }
+
+          // Toggle collapse session card
+          var collapseBtn = target.closest('[data-toggle-collapse]');
+          if (collapseBtn) {
+            var cid = collapseBtn.getAttribute('data-toggle-collapse');
+            state.collapsedIds[cid] = !state.collapsedIds[cid];
+            saveState();
+            renderCompletedSessions();
+            return;
+          }
+
+          // Delete completed session (2-step confirm)
+          var delSessBtn = target.closest('[data-delete-session]');
+          if (delSessBtn) {
+            var sid = delSessBtn.getAttribute('data-delete-session');
+            if (delSessBtn.getAttribute('data-armed') !== 'true') {
+              delSessBtn.setAttribute('data-armed', 'true');
+              delSessBtn.textContent = '本当に削除する';
+              delSessBtn.classList.add('armed');
+              setTimeout(function () {
+                if (delSessBtn) {
+                  delSessBtn.removeAttribute('data-armed');
+                  delSessBtn.textContent = '削除';
+                  delSessBtn.classList.remove('armed');
+                }
+              }, 3000);
+            } else {
+              state.completedSessions = state.completedSessions.filter(function (s) { return s.id !== sid; });
+              saveState();
+              populateYearOptions();
+              renderAll();
+              showToast('🗑️ 探鳥ブロックを削除しました');
+            }
+          }
+        });
+      }
+
+      // ---------- Boot ----------
+      loadState();
+      populateYearOptions();
+      bindEvents();
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
